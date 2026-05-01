@@ -21,6 +21,35 @@ export default function MessageBubble({ message, onRate }) {
     return isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
   };
 
+  const formatContent = (text) => {
+    if (!text) return [];
+    
+    const parts = [];
+    let remaining = text;
+    let key = 0;
+    
+    while (remaining) {
+      const actionMatch = remaining.match(/^\*\*(.+?)\*\*/);
+      if (actionMatch) {
+        parts.push({ type: 'action', content: actionMatch[1], key: key++ });
+        remaining = remaining.slice(actionMatch[0].length);
+      } else {
+        const nextAction = remaining.indexOf('**');
+        if (nextAction === -1) {
+          parts.push({ type: 'text', content: remaining, key: key++ });
+          break;
+        } else {
+          parts.push({ type: 'text', content: remaining.slice(0, nextAction), key: key++ });
+          remaining = remaining.slice(nextAction);
+        }
+      }
+    }
+    
+    return parts;
+  };
+
+  const contentParts = formatContent(content);
+
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'character'}`}>
       <div className="message-header">
@@ -29,13 +58,27 @@ export default function MessageBubble({ message, onRate }) {
         ) : (
           <div className="message-avatar-placeholder">{getInitial(sender_name)}</div>
         ))}
-        <span className="sender-name">{sender_name}</span>
+        {!isUser && sender_name && (
+          <span className="sender-name">({sender_name}: </span>
+        )}
+        <span className="sender-name-base">{sender_name}</span>
+        {!isUser && sender_name && (
+          <span className="sender-name">)</span>
+        )}
         <span className="timestamp">
           {formatTime(timestamp)}
         </span>
       </div>
       
-      <div className="message-content">{content}</div>
+      <div className="message-content">
+        {contentParts.map((part) => (
+          part.type === 'action' ? (
+            <p key={part.key} className="message-action">**{part.content}**</p>
+          ) : (
+            <span key={part.key}>{part.content}</span>
+          )
+        ))}
+      </div>
 
       {!isUser && (
         <div className="message-actions">
@@ -115,6 +158,10 @@ export default function MessageBubble({ message, onRate }) {
           font-weight: 500;
           color: var(--text-secondary);
         }
+        .sender-name-base {
+          font-weight: 500;
+          color: var(--text-primary);
+        }
         .timestamp {
           color: var(--text-muted);
           margin-left: auto;
@@ -122,6 +169,15 @@ export default function MessageBubble({ message, onRate }) {
         .message-content {
           line-height: 1.6;
           white-space: pre-wrap;
+        }
+        .message-content span {
+          margin: 0;
+        }
+        .message-action {
+          font-style: italic;
+          color: var(--secondary);
+          margin: 0.25rem 0 !important;
+          font-weight: 500;
         }
         .message-actions {
           margin-top: 0.75rem;
