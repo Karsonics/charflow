@@ -23,10 +23,13 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
 
   const parseContent = (text) => {
     if (!text) return [];
-    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
     return parts.map((part, i) => {
       if (part.match(/^\*\*[^*]+\*\*$/)) {
         return <span key={i} className="action-text">{part.slice(2, -2)}</span>;
+      }
+      if (part.match(/^\*[^*]+\*$/)) {
+        return <span key={i} className="italic-text">{part.slice(1, -1)}</span>;
       }
       return part;
     });
@@ -97,6 +100,7 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
         .name-prefix { font-weight: 600; color: var(--primary); margin-right: 0.25rem; }
         .message-text::first-letter { text-transform: capitalize; }
         .action-text { font-style: italic; color: var(--secondary); font-weight: 500; }
+        .italic-text { font-style: italic; }
         .message-actions { margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
         .rate-button { display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--bg-gray-100); border: 1px solid var(--border); border-radius: 1rem; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; }
         .rate-button:hover { background: var(--bg-gray-200); border-color: var(--primary); }
