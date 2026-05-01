@@ -53,7 +53,11 @@ export default function ChatStart() {
       <div className="container">
         <div className="start-card">
           <div className="character-preview">
-            <div className="avatar">{character.name?.charAt(0)}</div>
+            {character.avatar_url ? (
+              <img src={character.avatar_url} alt={character.name} className="avatar-large" />
+            ) : (
+              <div className="avatar">{character.name?.charAt(0)}</div>
+            )}
             <h1>{character.name}</h1>
             <p className="description">{character.description}</p>
             <div className="greeting">
@@ -95,17 +99,23 @@ export default function ChatStart() {
         .character-preview {
           margin-bottom: 2rem;
         }
-        .avatar {
+        .avatar, .avatar-large {
           width: 80px;
           height: 80px;
           margin: 0 auto 1rem;
           border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .avatar {
           background: linear-gradient(135deg, var(--primary), var(--secondary));
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 2rem;
           font-weight: 700;
+        }
+        .avatar-large {
+          object-fit: cover;
         }
         .character-preview h1 {
           margin-bottom: 0.5rem;

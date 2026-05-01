@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom';
 
 export default function CharacterCard({ character, onDelete }) {
-  const { id, name, description, greeting, visibility, creator_username, created_at } = character;
+  const { id, name, description, greeting, visibility, creator_username, avatar_url } = character;
 
   return (
     <div className="character-card">
       <div className="card-header">
-        <div className="avatar">{name.charAt(0).toUpperCase()}</div>
+        {avatar_url ? (
+          <img src={avatar_url} alt={name} className="avatar-img" />
+        ) : (
+          <div className="avatar">{name.charAt(0).toUpperCase()}</div>
+        )}
         <div className="card-info">
           <h3>{name}</h3>
           <span className={`badge badge-${visibility}`}>{visibility}</span>
@@ -40,16 +44,22 @@ export default function CharacterCard({ character, onDelete }) {
           gap: 1rem;
           margin-bottom: 1rem;
         }
-        .avatar {
+        .avatar, .avatar-img {
           width: 48px;
           height: 48px;
           border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .avatar {
           background: linear-gradient(135deg, var(--primary), var(--secondary));
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 700;
           font-size: 1.25rem;
+        }
+        .avatar-img {
+          object-fit: cover;
         }
         .card-info h3 {
           font-size: 1.125rem;

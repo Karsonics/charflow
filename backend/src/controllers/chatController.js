@@ -215,7 +215,8 @@ export const getChat = async (req, res) => {
 
     const [messages] = await pool.execute(
       `SELECT m.*, 
-        CASE WHEN m.sender_type = 'character' THEN c.name ELSE u.username END as sender_name
+        CASE WHEN m.sender_type = 'character' THEN c.name ELSE u.username END as sender_name,
+        CASE WHEN m.sender_type = 'character' THEN c.avatar_url ELSE NULL END as sender_avatar
        FROM messages m
        LEFT JOIN users u ON m.sender_type = 'user' AND m.sender_id = u.id
        LEFT JOIN characters c ON m.sender_type = 'character' AND m.sender_id = c.id

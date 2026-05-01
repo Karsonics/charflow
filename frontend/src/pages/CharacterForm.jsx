@@ -72,6 +72,17 @@ export default function CharacterForm() {
             </div>
 
             <div className="form-group">
+              <label className="form-label">Avatar URL (optional)</label>
+              <input
+                type="url"
+                value={form.avatar_url || ''}
+                onChange={e => setForm({ ...form, avatar_url: e.target.value })}
+                placeholder="https://example.com/avatar.jpg"
+              />
+              <span className="form-help">Enter a URL to an image (best: square, 200x200+)</span>
+            </div>
+
+            <div className="form-group">
               <label className="form-label">Description / Personality</label>
               <textarea
                 value={form.description}

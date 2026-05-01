@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export default function MessageBubble({ message, onRate }) {
-  const { id, sender_type, sender_name, content, timestamp, rating } = message;
+  const { id, sender_type, sender_name, sender_avatar, content, timestamp, rating } = message;
   const [showRating, setShowRating] = useState(false);
   const [currentRating, setCurrentRating] = useState(rating || 0);
 
@@ -13,9 +13,16 @@ export default function MessageBubble({ message, onRate }) {
     setShowRating(false);
   };
 
+  const getInitial = (name) => name?.charAt(0).toUpperCase() || '?';
+
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'character'}`}>
       <div className="message-header">
+        {!isUser && (sender_avatar ? (
+          <img src={sender_avatar} alt={sender_name} className="message-avatar" />
+        ) : (
+          <div className="message-avatar-placeholder">{getInitial(sender_name)}</div>
+        ))}
         <span className="sender-name">{sender_name}</span>
         <span className="timestamp">
           {new Date(timestamp).toLocaleTimeString()}
@@ -76,10 +83,27 @@ export default function MessageBubble({ message, onRate }) {
         }
         .message-header {
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          gap: 0.5rem;
           margin-bottom: 0.5rem;
           font-size: 0.75rem;
+        }
+        .message-avatar, .message-avatar-placeholder {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .message-avatar {
+          object-fit: cover;
+        }
+        .message-avatar-placeholder {
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.7rem;
+          font-weight: 700;
         }
         .sender-name {
           font-weight: 500;
@@ -87,6 +111,7 @@ export default function MessageBubble({ message, onRate }) {
         }
         .timestamp {
           color: var(--text-muted);
+          margin-left: auto;
         }
         .message-content {
           line-height: 1.6;
