@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { charactersAPI, chatAPI } from '../services/api';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { charactersAPI } from '../services/api';
 
 export default function CharacterForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -16,19 +17,55 @@ export default function CharacterForm() {
     avatar_url: '',
     category: ''
   });
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (id) {
       charactersAPI.getById(id)
-        .then(res => setForm(res.data))
+        .then(res => {
+          setForm(res.data);
+          if (res.data.avatar_url) {
+            setAvatarPreview(res.data.avatar_url);
+          }
+        })
         .catch(err => {
           setError('Character not found');
           navigate('/characters');
         });
     }
   }, [id]);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+      setForm(prev => ({ ...prev, avatar_url: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeAvatar = () => {
+    setAvatarPreview('');
+    setForm(prev => ({ ...prev, avatar_url: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,6 +97,33 @@ export default function CharacterForm() {
           {error && <div className="error alert">{error}</div>}
 
           <form onSubmit={handleSubmit}>
+            <div className="avatar-section">
+              <div className="avatar-preview-container">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar preview" className="avatar-preview-img" />
+                ) : (
+                  <div className="avatar-placeholder">?</div>
+                )}
+                {avatarPreview && (
+                  <button type="button" className="avatar-remove" onClick={removeAvatar}>×</button>
+                )}
+              </div>
+              <div className="avatar-upload">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="avatar-input"
+                  id="avatar-upload"
+                />
+                <label htmlFor="avatar-upload" className="avatar-label">
+                  {avatarPreview ? 'Change Photo' : 'Add Photo'}
+                </label>
+                <span className="form-help">Square image, min 200x200</span>
+              </div>
+            </div>
+
             <div className="form-group">
               <label className="form-label">Name *</label>
               <input
@@ -69,17 +133,6 @@ export default function CharacterForm() {
                 placeholder="e.g., Sherlock Holmes"
                 required
               />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Avatar URL (optional)</label>
-              <input
-                type="url"
-                value={form.avatar_url || ''}
-                onChange={e => setForm({ ...form, avatar_url: e.target.value })}
-                placeholder="https://example.com/avatar.jpg"
-              />
-              <span className="form-help">Enter a URL to an image (best: square, 200x200+)</span>
             </div>
 
             <div className="form-group">
@@ -163,6 +216,77 @@ export default function CharacterForm() {
         }
         .form-card h1 {
           margin-bottom: 1.5rem;
+        }
+        .avatar-section {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
+          padding-bottom: 1.5rem;
+          border-bottom: 1px solid var(--border);
+        }
+        .avatar-preview-container {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          flex-shrink: 0;
+        }
+        .avatar-preview-img {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid var(--border);
+        }
+        .avatar-placeholder {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2rem;
+          font-weight: 700;
+        }
+        .avatar-remove {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: var(--error);
+          color: white;
+          border: none;
+          font-size: 1rem;
+          line-height: 1;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+        }
+        .avatar-upload {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .avatar-input {
+          display: none;
+        }
+        .avatar-label {
+          display: inline-block;
+          padding: 0.5rem 1rem;
+          background: var(--bg-elevated);
+          border: 1px solid var(--border);
+          border-radius: 0.5rem;
+          cursor: pointer;
+          font-size: 0.875rem;
+          transition: background 0.2s;
+        }
+        .avatar-label:hover {
+          background: var(--border);
         }
         textarea {
           resize: vertical;
