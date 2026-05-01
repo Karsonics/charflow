@@ -1,4 +1,4 @@
-# CharFlow AI - Character.AI Clone
+# CharFlow AI - rawr
 
 A full-stack application for creating, discovering, and interacting with AI-driven characters capable of human-like conversation, roleplay, and storytelling.
 
