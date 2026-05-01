@@ -15,6 +15,12 @@ export default function MessageBubble({ message, onRate }) {
 
   const getInitial = (name) => name?.charAt(0).toUpperCase() || '?';
 
+  const formatTime = (ts) => {
+    if (!ts) return '';
+    const date = new Date(ts);
+    return isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
+  };
+
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'character'}`}>
       <div className="message-header">
@@ -25,7 +31,7 @@ export default function MessageBubble({ message, onRate }) {
         ))}
         <span className="sender-name">{sender_name}</span>
         <span className="timestamp">
-          {new Date(timestamp).toLocaleTimeString()}
+          {formatTime(timestamp)}
         </span>
       </div>
       
