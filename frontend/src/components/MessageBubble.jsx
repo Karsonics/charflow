@@ -58,13 +58,6 @@ export default function MessageBubble({ message, onRate }) {
         ) : (
           <div className="message-avatar-placeholder">{getInitial(sender_name)}</div>
         ))}
-        {!isUser && sender_name && (
-          <span className="sender-name">({sender_name}: </span>
-        )}
-        <span className="sender-name-base">{sender_name}</span>
-        {!isUser && sender_name && (
-          <span className="sender-name">)</span>
-        )}
         <span className="timestamp">
           {formatTime(timestamp)}
         </span>
@@ -154,14 +147,6 @@ export default function MessageBubble({ message, onRate }) {
           font-size: 0.7rem;
           font-weight: 700;
         }
-        .sender-name {
-          font-weight: 500;
-          color: var(--text-secondary);
-        }
-        .sender-name-base {
-          font-weight: 500;
-          color: var(--text-primary);
-        }
         .timestamp {
           color: var(--text-muted);
           margin-left: auto;
@@ -170,8 +155,11 @@ export default function MessageBubble({ message, onRate }) {
           line-height: 1.6;
           white-space: pre-wrap;
         }
-        .message-content span {
+        .message-content > span {
           margin: 0;
+        }
+        .message-content::first-letter {
+          text-transform: capitalize;
         }
         .message-action {
           font-style: italic;
