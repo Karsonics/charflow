@@ -58,11 +58,19 @@ export const startChat = async (req, res) => {
         id: character.id,
         name: character.name,
         description: character.description,
-        greeting: character.greeting
+        greeting: character.greeting,
+        avatar_url: character.avatar_url
       },
       provider,
       model,
-      messages: [{ id: greetingMessage.insertId, sender_type: 'character', sender_id: characterId, content: greeting }]
+      messages: [{ 
+        id: greetingMessage.insertId, 
+        sender_type: 'character', 
+        sender_id: characterId, 
+        content: greeting,
+        sender_name: character.name,
+        sender_avatar: character.avatar_url
+      }]
     });
   } catch (error) {
     console.error('StartChat error:', error);
@@ -170,7 +178,14 @@ export const sendMessage = async (req, res) => {
 
     res.json({
       userMessage: { id: userMessageId, sender_type: 'user', sender_id: req.userId, content },
-      aiMessage: { id: aiMsgResult.insertId, sender_type: 'character', sender_id: character.id, content: responseContent }
+      aiMessage: { 
+        id: aiMsgResult.insertId, 
+        sender_type: 'character', 
+        sender_id: character.id, 
+        content: responseContent,
+        sender_name: character.name,
+        sender_avatar: character.avatar_url
+      }
     });
   } catch (error) {
     console.error('SendMessage error:', error);

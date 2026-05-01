@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS characters (
   greeting TEXT,
   example_dialogues TEXT,
   visibility ENUM('public', 'private') DEFAULT 'private',
-  avatar_url VARCHAR(500),
+  avatar_url TEXT,
   category VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
