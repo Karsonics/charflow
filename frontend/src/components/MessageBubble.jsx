@@ -24,6 +24,8 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
   const avatarSrc = isUser ? userAvatar : sender_avatar;
   const name = isUser ? (sender_name || 'You') : sender_name;
 
+  const ratingEmojis = ['', '👎', '😐', '👍', '❤️'];
+
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'character'}`}>
       <div className="message-header">
@@ -45,18 +47,27 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
         <div className="message-actions">
           {currentRating > 0 ? (
             <div className="rating-display">
-              {[1, 2, 3, 4].map(score => (
-                <span key={score} className={`star ${score <= currentRating ? 'filled' : ''}`}>★</span>
-              ))}
+              <span className="rating-emoji">{ratingEmojis[currentRating]}</span>
+              <span className="rating-label">{currentRating === 1 ? 'Bad' : currentRating === 2 ? 'Ok' : currentRating === 3 ? 'Good' : 'Great'}</span>
             </div>
           ) : showRating ? (
-            <div className="rating-buttons">
+            <div className="rating-options">
               {[1, 2, 3, 4].map(score => (
-                <button key={score} className="btn-small btn-icon" onClick={() => handleRate(score)}>{score}</button>
+                <button 
+                  key={score} 
+                  className="rating-option" 
+                  onClick={() => handleRate(score)}
+                  title={score === 1 ? 'Bad' : score === 2 ? 'Ok' : score === 3 ? 'Good' : 'Great'}
+                >
+                  <span className="rating-emoji-small">{ratingEmojis[score]}</span>
+                </button>
               ))}
+              <button className="rating-cancel" onClick={() => setShowRating(false)}>✕</button>
             </div>
           ) : (
-            <button className="btn-small secondary rate-btn" onClick={() => setShowRating(true)}>Rate</button>
+            <button className="rate-button" onClick={() => setShowRating(true)}>
+              <span>👍</span> Rate
+            </button>
           )}
         </div>
       )}
@@ -74,11 +85,18 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
         .message-body { line-height: 1.6; white-space: pre-wrap; }
         .name-prefix { font-weight: 600; color: var(--primary); margin-right: 0.25rem; }
         .message-text::first-letter { text-transform: capitalize; }
-        .message-actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; }
-        .rating-display { display: flex; gap: 0.25rem; }
-        .star { color: var(--border); font-size: 1rem; }
-        .star.filled { color: var(--warning); }
-        .rate-btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+        .message-actions { margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .rate-button { display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--bg-gray-100); border: 1px solid var(--border); border-radius: 1rem; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; }
+        .rate-button:hover { background: var(--bg-gray-200); border-color: var(--primary); }
+        .rating-options { display: flex; align-items: center; gap: 0.25rem; }
+        .rating-option { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--bg-white); border: 1px solid var(--border); border-radius: 50%; cursor: pointer; transition: all 0.2s; font-size: 1rem; padding: 0; }
+        .rating-option:hover { transform: scale(1.2); border-color: var(--primary); background: var(--bg-gray-50); }
+        .rating-emoji-small { font-size: 1.1rem; }
+        .rating-cancel { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; padding: 0; }
+        .rating-cancel:hover { color: var(--error); }
+        .rating-display { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.5rem; background: var(--bg-gray-50); border-radius: 1rem; }
+        .rating-emoji { font-size: 1rem; }
+        .rating-label { font-size: 0.75rem; color: var(--text-secondary); }
       `}</style>
     </div>
   );
