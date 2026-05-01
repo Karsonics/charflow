@@ -60,7 +60,11 @@ export const getCharacterById = async (req, res) => {
 export const getMyCharacters = async (req, res) => {
   try {
     const [characters] = await pool.execute(
-      'SELECT * FROM characters WHERE creator_id = ? ORDER BY created_at DESC',
+      `SELECT c.*, u.username as creator_username
+       FROM characters c
+       JOIN users u ON c.creator_id = u.id
+       WHERE c.creator_id = ?
+       ORDER BY c.created_at DESC`,
       [req.userId]
     );
 
