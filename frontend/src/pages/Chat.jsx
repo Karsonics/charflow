@@ -42,13 +42,29 @@ export default function Chat() {
   };
 
   const handleSend = async (content) => {
+    if (sending) return;
+    
+    const tempId = Date.now();
+    const tempUserMessage = {
+      id: tempId,
+      sender_type: 'user',
+      sender_name: 'You',
+      content: content,
+      timestamp: new Date().toISOString()
+    };
+    
     setSending(true);
     setError('');
+    setMessages(prev => [...prev, tempUserMessage]);
 
     try {
       const res = await chatAPI.sendMessage({ chatId: parseInt(id), content });
-      setMessages(prev => [...prev, res.data.userMessage, res.data.aiMessage]);
+      setMessages(prev => {
+        const filtered = prev.filter(m => m.id !== tempId);
+        return [...filtered, res.data.userMessage, res.data.aiMessage];
+      });
     } catch (err) {
+      setMessages(prev => prev.filter(m => m.id !== tempId));
       setError(err.response?.data?.error || 'Failed to send message');
     } finally {
       setSending(false);
@@ -118,25 +134,33 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="chat-messages">
-        <div className="container">
-          {error && <div className="error-banner">{error}</div>}
-          
-          {messages.length === 0 ? (
-            <p className="text-muted text-center">Start the conversation!</p>
-          ) : (
-            messages.map(msg => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                onRate={handleRate}
-              />
-            ))
-          )}
-          
-          <div ref={messagesEndRef} />
+<div className="chat-messages">
+          <div className="container">
+            {error && <div className="error-banner">{error}</div>}
+            
+            {messages.length === 0 ? (
+              <p className="text-muted text-center">Start the conversation!</p>
+            ) : (
+              messages.map(msg => (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  onRate={handleRate}
+                />
+              ))
+            )}
+            
+            {sending && (
+              <div className="typing-indicator">
+                <span className="typing-dot"></span>
+                <span className="typing-dot"></span>
+                <span className="typing-dot"></span>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
         </div>
-      </div>
 
       <ChatInput
         onSend={handleSend}
@@ -178,6 +202,25 @@ export default function Chat() {
         .chat-error {
           padding: 2rem;
           text-align: center;
+        }
+        .typing-indicator {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.5rem 1rem;
+        }
+        .typing-dot {
+          width: 8px;
+          height: 8px;
+          background: var(--text-muted);
+          border-radius: 50%;
+          animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-4px); }
         }
       `}</style>
     </div>
