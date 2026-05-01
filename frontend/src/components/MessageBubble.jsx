@@ -21,35 +21,6 @@ export default function MessageBubble({ message, onRate }) {
     return isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
   };
 
-  const formatContent = (text) => {
-    if (!text) return [];
-    
-    const parts = [];
-    let remaining = text;
-    let key = 0;
-    
-    while (remaining) {
-      const actionMatch = remaining.match(/^\*\*(.+?)\*\*/);
-      if (actionMatch) {
-        parts.push({ type: 'action', content: actionMatch[1], key: key++ });
-        remaining = remaining.slice(actionMatch[0].length);
-      } else {
-        const nextAction = remaining.indexOf('**');
-        if (nextAction === -1) {
-          parts.push({ type: 'text', content: remaining, key: key++ });
-          break;
-        } else {
-          parts.push({ type: 'text', content: remaining.slice(0, nextAction), key: key++ });
-          remaining = remaining.slice(nextAction);
-        }
-      }
-    }
-    
-    return parts;
-  };
-
-  const contentParts = formatContent(content);
-
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'character'}`}>
       <div className="message-header">
@@ -58,19 +29,13 @@ export default function MessageBubble({ message, onRate }) {
         ) : (
           <div className="message-avatar-placeholder">{getInitial(sender_name)}</div>
         ))}
-        <span className="timestamp">
-          {formatTime(timestamp)}
-        </span>
+        <span className="sender-label">{sender_name}</span>
+        <span className="timestamp">{formatTime(timestamp)}</span>
       </div>
       
-      <div className="message-content">
-        {contentParts.map((part) => (
-          part.type === 'action' ? (
-            <p key={part.key} className="message-action">**{part.content}**</p>
-          ) : (
-            <span key={part.key}>{part.content}</span>
-          )
-        ))}
+      <div className="message-body">
+        {!isUser && sender_name && <span className="name-prefix">{sender_name}: </span>}
+        <span className="message-text">{content}</span>
       </div>
 
       {!isUser && (
@@ -78,115 +43,39 @@ export default function MessageBubble({ message, onRate }) {
           {currentRating > 0 ? (
             <div className="rating-display">
               {[1, 2, 3, 4].map(score => (
-                <span key={score} className={`star ${score <= currentRating ? 'filled' : ''}`}>
-                  ★
-                </span>
+                <span key={score} className={`star ${score <= currentRating ? 'filled' : ''}`}>★</span>
               ))}
             </div>
           ) : showRating ? (
             <div className="rating-buttons">
               {[1, 2, 3, 4].map(score => (
-                <button
-                  key={score}
-                  className="btn-small btn-icon"
-                  onClick={() => handleRate(score)}
-                  title={`Rate ${score}`}
-                >
-                  {score}
-                </button>
+                <button key={score} className="btn-small btn-icon" onClick={() => handleRate(score)}>{score}</button>
               ))}
             </div>
           ) : (
-            <button
-              className="btn-small secondary rate-btn"
-              onClick={() => setShowRating(true)}
-            >
-              Rate
-            </button>
+            <button className="btn-small secondary rate-btn" onClick={() => setShowRating(true)}>Rate</button>
           )}
         </div>
       )}
 
       <style>{`
-        .message-bubble {
-          max-width: 70%;
-          padding: 1rem;
-          border-radius: 1rem;
-          margin-bottom: 0.5rem;
-        }
-        .message-bubble.user {
-          margin-left: auto;
-          background: var(--primary);
-        }
-        .message-bubble.character {
-          margin-right: auto;
-          background: var(--bg-surface);
-          border: 1px solid var(--border);
-        }
-        .message-header {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 0.5rem;
-          font-size: 0.75rem;
-        }
-        .message-avatar, .message-avatar-placeholder {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-        .message-avatar {
-          object-fit: cover;
-        }
-        .message-avatar-placeholder {
-          background: linear-gradient(135deg, var(--primary), var(--secondary));
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.7rem;
-          font-weight: 700;
-        }
-        .timestamp {
-          color: var(--text-muted);
-          margin-left: auto;
-        }
-        .message-content {
-          line-height: 1.6;
-          white-space: pre-wrap;
-        }
-        .message-content > span {
-          margin: 0;
-        }
-        .message-content::first-letter {
-          text-transform: capitalize;
-        }
-        .message-action {
-          font-style: italic;
-          color: var(--secondary);
-          margin: 0.25rem 0 !important;
-          font-weight: 500;
-        }
-        .message-actions {
-          margin-top: 0.75rem;
-          display: flex;
-          gap: 0.5rem;
-        }
-        .rating-display {
-          display: flex;
-          gap: 0.25rem;
-        }
-        .star {
-          color: var(--border);
-          font-size: 1rem;
-        }
-        .star.filled {
-          color: var(--warning);
-        }
-        .rate-btn {
-          font-size: 0.75rem;
-          padding: 0.25rem 0.5rem;
-        }
+        .message-bubble { max-width: 70%; padding: 1rem; border-radius: 1rem; margin-bottom: 0.5rem; }
+        .message-bubble.user { margin-left: auto; background: var(--primary); }
+        .message-bubble.character { margin-right: auto; background: var(--bg-surface); border: 1px solid var(--border); }
+        .message-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; }
+        .message-avatar, .message-avatar-placeholder { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; }
+        .message-avatar { object-fit: cover; }
+        .message-avatar-placeholder { background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
+        .sender-label { font-weight: 500; color: var(--text-secondary); }
+        .timestamp { color: var(--text-muted); margin-left: auto; }
+        .message-body { line-height: 1.6; white-space: pre-wrap; }
+        .name-prefix { font-weight: 600; color: var(--primary); margin-right: 0.25rem; }
+        .message-text::first-letter { text-transform: capitalize; }
+        .message-actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; }
+        .rating-display { display: flex; gap: 0.25rem; }
+        .star { color: var(--border); font-size: 1rem; }
+        .star.filled { color: var(--warning); }
+        .rate-btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
       `}</style>
     </div>
   );
