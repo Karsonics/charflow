@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 
 export default function Profile() {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -62,7 +62,7 @@ export default function Profile() {
 
     try {
       const res = await authAPI.updateProfile(form);
-      login(res.data.user, localStorage.getItem('token'));
+      updateUser(res.data.user);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
