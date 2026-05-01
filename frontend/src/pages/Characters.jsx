@@ -19,7 +19,12 @@ export default function Characters() {
   const loadCharacters = async () => {
     setLoading(true);
     try {
-      const res = await charactersAPI.getAll({ visibility: filter, search });
+      let res;
+      if (filter === 'private') {
+        res = await charactersAPI.getMy();
+      } else {
+        res = await charactersAPI.getAll({ visibility: filter, search });
+      }
       setCharacters(res.data);
     } catch (err) {
       console.error(err);
