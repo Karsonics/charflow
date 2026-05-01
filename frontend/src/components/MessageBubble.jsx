@@ -21,6 +21,17 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
     return isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
   };
 
+  const parseContent = (text) => {
+    if (!text) return [];
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.match(/^\*\*[^*]+\*\*$/)) {
+        return <span key={i} className="action-text">{part.slice(2, -2)}</span>;
+      }
+      return part;
+    });
+  };
+
   const avatarSrc = isUser ? userAvatar : sender_avatar;
   const name = isUser ? (sender_name || 'You') : sender_name;
 
@@ -39,8 +50,8 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
       </div>
       
       <div className="message-body">
-        {!isUser && sender_name && <span className="name-prefix">{sender_name}: </span>}
-        <span className="message-text">{content}</span>
+        {isUser && sender_name && <span className="name-prefix">{sender_name}: </span>}
+        <span className="message-text">{parseContent(content)}</span>
       </div>
 
       {!isUser && (
@@ -85,6 +96,7 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
         .message-body { line-height: 1.6; white-space: pre-wrap; }
         .name-prefix { font-weight: 600; color: var(--primary); margin-right: 0.25rem; }
         .message-text::first-letter { text-transform: capitalize; }
+        .action-text { font-style: italic; color: var(--secondary); font-weight: 500; }
         .message-actions { margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
         .rate-button { display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--bg-gray-100); border: 1px solid var(--border); border-radius: 1rem; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; }
         .rate-button:hover { background: var(--bg-gray-200); border-color: var(--primary); }

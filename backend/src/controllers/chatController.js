@@ -219,7 +219,7 @@ function buildSystemPrompt(character) {
     prompt += `\n\nExample dialogues:\n${character.example_dialogues}`;
   }
 
-  prompt += `\n\nAlways stay in character and respond as ${charName}. Be engaging and conversational. Use third-person actions in your responses like *${charName} does action*. For example: "${charName}: My my how cute *${charName} looks into your eyes and smirks* your cute dear~~~". Always format your response like: ${charName}: message OR ${charName}: *action* message`;
+  prompt += `\n\nAlways stay in character as ${charName}. Be engaging and conversational. Use third-person actions like **${charName} does action**. Example: "${charName}: My my how cute **${charName} looks into your eyes and smirks** your dear~~~". Format: ${charName}: message OR ${charName}: **action** message`;
 
   return prompt;
 }
