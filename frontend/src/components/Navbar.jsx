@@ -10,6 +10,8 @@ export default function Navbar() {
     navigate('/');
   };
 
+  const getInitial = (name) => name?.charAt(0).toUpperCase() || '?';
+
   return (
     <nav className="navbar">
       <div className="container flex items-center justify-between">
@@ -27,7 +29,13 @@ export default function Navbar() {
               <Link to="/characters/create">Create</Link>
               <Link to="/settings">Settings</Link>
               <div className="user-menu">
-                <span className="username">{user.username}</span>
+                <Link to="/profile" className="user-avatar">
+                  {user.avatar_url ? (
+                    <img src={user.avatar_url} alt={user.username} className="avatar-img" />
+                  ) : (
+                    <div className="avatar-placeholder-small">{getInitial(user.username)}</div>
+                  )}
+                </Link>
                 <button onClick={handleLogout} className="btn-small secondary">
                   Logout
                 </button>
@@ -44,7 +52,7 @@ export default function Navbar() {
 
       <style>{`
         .navbar {
-          background: var(--bg-surface);
+          background: var(--bg-white);
           border-bottom: 1px solid var(--border);
           padding: 1rem 0;
           position: sticky;
@@ -58,6 +66,7 @@ export default function Navbar() {
           align-items: center;
           gap: 0.5rem;
           text-decoration: none;
+          color: var(--text-primary);
         }
         .logo-icon {
           font-size: 1.25rem;
@@ -75,9 +84,31 @@ export default function Navbar() {
           align-items: center;
           gap: 1rem;
         }
-        .username {
-          color: var(--text-secondary);
+        .user-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .avatar-placeholder-small {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          display: flex;
+          align-items: center;
+          justify-content: center;
           font-size: 0.875rem;
+          font-weight: 700;
+          color: white;
         }
       `}</style>
     </nav>

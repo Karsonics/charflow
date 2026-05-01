@@ -10,6 +10,7 @@ import Chat from './pages/Chat';
 import ChatStart from './pages/ChatStart';
 import ChatHistory from './pages/ChatHistory';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 import './styles/global.css';
 
 function ProtectedRoute({ children }) {
@@ -69,6 +70,11 @@ function AppRoutes() {
       <Route path="/settings" element={
         <ProtectedRoute>
           <Settings />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Profile />
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />

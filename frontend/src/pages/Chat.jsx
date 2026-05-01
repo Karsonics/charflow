@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { chatAPI } from '../services/api';
+import { chatAPI, authAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import MessageBubble from '../components/MessageBubble';
 import ChatInput from '../components/ChatInput';
 
@@ -8,6 +9,7 @@ export default function Chat() {
   const { id } = useParams();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
+  const { user } = useAuth();
 
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -146,6 +148,7 @@ export default function Chat() {
                   key={msg.id}
                   message={msg}
                   onRate={handleRate}
+                  userAvatar={user?.avatar_url}
                 />
               ))
             )}

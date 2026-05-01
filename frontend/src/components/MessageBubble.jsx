@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function MessageBubble({ message, onRate }) {
+export default function MessageBubble({ message, onRate, userAvatar }) {
   const { id, sender_type, sender_name, sender_avatar, content, timestamp, rating } = message;
   const [showRating, setShowRating] = useState(false);
   const [currentRating, setCurrentRating] = useState(rating || 0);
@@ -21,15 +21,16 @@ export default function MessageBubble({ message, onRate }) {
     return isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
   };
 
+  const avatarSrc = isUser ? userAvatar : sender_avatar;
+
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'character'}`}>
       <div className="message-header">
-        {!isUser && (sender_avatar ? (
-          <img src={sender_avatar} alt={sender_name} className="message-avatar" />
+        {avatarSrc ? (
+          <img src={avatarSrc} alt={sender_name} className="message-avatar" />
         ) : (
           <div className="message-avatar-placeholder">{getInitial(sender_name)}</div>
-        ))}
-        <span className="sender-label">{sender_name}</span>
+        )}
         <span className="timestamp">{formatTime(timestamp)}</span>
       </div>
       
@@ -61,12 +62,11 @@ export default function MessageBubble({ message, onRate }) {
       <style>{`
         .message-bubble { max-width: 70%; padding: 1rem; border-radius: 1rem; margin-bottom: 0.5rem; }
         .message-bubble.user { margin-left: auto; background: var(--primary); }
-        .message-bubble.character { margin-right: auto; background: var(--bg-surface); border: 1px solid var(--border); }
+        .message-bubble.character { margin-right: auto; background: var(--bg-white); border: 1px solid var(--border); }
         .message-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; }
         .message-avatar, .message-avatar-placeholder { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; }
         .message-avatar { object-fit: cover; }
-        .message-avatar-placeholder { background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
-        .sender-label { font-weight: 500; color: var(--text-secondary); }
+        .message-avatar-placeholder { background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: white; }
         .timestamp { color: var(--text-muted); margin-left: auto; }
         .message-body { line-height: 1.6; white-space: pre-wrap; }
         .name-prefix { font-weight: 600; color: var(--primary); margin-right: 0.25rem; }

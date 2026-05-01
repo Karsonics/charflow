@@ -74,7 +74,7 @@ export const login = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const [users] = await pool.execute('SELECT id, username, email, created_at FROM users WHERE id = ?', [req.userId]);
+    const [users] = await pool.execute('SELECT id, username, email, avatar_url, created_at FROM users WHERE id = ?', [req.userId]);
     if (users.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -88,6 +88,36 @@ export const getMe = async (req, res) => {
   } catch (error) {
     console.error('GetMe error:', error);
     res.status(500).json({ error: 'Failed to get user' });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { username, avatar_url } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    const [existing] = await pool.execute(
+      'SELECT id FROM users WHERE username = ? AND id != ?',
+      [username, req.userId]
+    );
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    await pool.execute(
+      'UPDATE users SET username = ?, avatar_url = ? WHERE id = ?',
+      [username, avatar_url || null, req.userId]
+    );
+
+    const [users] = await pool.execute('SELECT id, username, email, avatar_url, created_at FROM users WHERE id = ?', [req.userId]);
+
+    res.json({ user: users[0] });
+  } catch (error) {
+    console.error('UpdateProfile error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 };
 
