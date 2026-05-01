@@ -176,8 +176,18 @@ export const sendMessage = async (req, res) => {
       [chatId, 'character', character.id, responseContent]
     );
 
+    const [users] = await pool.execute('SELECT username, avatar_url FROM users WHERE id = ?', [req.userId]);
+    const userInfo = users[0] || {};
+
     res.json({
-      userMessage: { id: userMessageId, sender_type: 'user', sender_id: req.userId, content },
+      userMessage: { 
+        id: userMessageId, 
+        sender_type: 'user', 
+        sender_id: req.userId, 
+        content,
+        sender_name: userInfo.username || 'You',
+        sender_avatar: userInfo.avatar_url
+      },
       aiMessage: { 
         id: aiMsgResult.insertId, 
         sender_type: 'character', 
@@ -231,7 +241,7 @@ export const getChat = async (req, res) => {
     const [messages] = await pool.execute(
       `SELECT m.*, 
         CASE WHEN m.sender_type = 'character' THEN c.name ELSE u.username END as sender_name,
-        CASE WHEN m.sender_type = 'character' THEN c.avatar_url ELSE NULL END as sender_avatar
+        CASE WHEN m.sender_type = 'character' THEN c.avatar_url ELSE u.avatar_url END as sender_avatar
        FROM messages m
        LEFT JOIN users u ON m.sender_type = 'user' AND m.sender_id = u.id
        LEFT JOIN characters c ON m.sender_type = 'character' AND m.sender_id = c.id

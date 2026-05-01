@@ -22,15 +22,17 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
   };
 
   const avatarSrc = isUser ? userAvatar : sender_avatar;
+  const name = isUser ? (sender_name || 'You') : sender_name;
 
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'character'}`}>
       <div className="message-header">
         {avatarSrc ? (
-          <img src={avatarSrc} alt={sender_name} className="message-avatar" />
+          <img src={avatarSrc} alt={name} className="message-avatar" />
         ) : (
-          <div className="message-avatar-placeholder">{getInitial(sender_name)}</div>
+          <div className="message-avatar-placeholder">{getInitial(name)}</div>
         )}
+        <span className="sender-name">{name}</span>
         <span className="timestamp">{formatTime(timestamp)}</span>
       </div>
       
@@ -63,10 +65,11 @@ export default function MessageBubble({ message, onRate, userAvatar }) {
         .message-bubble { max-width: 70%; padding: 1rem; border-radius: 1rem; margin-bottom: 0.5rem; }
         .message-bubble.user { margin-left: auto; background: var(--primary); }
         .message-bubble.character { margin-right: auto; background: var(--bg-white); border: 1px solid var(--border); }
-        .message-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; }
+        .message-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; flex-wrap: wrap; }
         .message-avatar, .message-avatar-placeholder { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; }
         .message-avatar { object-fit: cover; }
         .message-avatar-placeholder { background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: white; }
+        .sender-name { font-weight: 600; color: var(--text-primary); }
         .timestamp { color: var(--text-muted); margin-left: auto; }
         .message-body { line-height: 1.6; white-space: pre-wrap; }
         .name-prefix { font-weight: 600; color: var(--primary); margin-right: 0.25rem; }
